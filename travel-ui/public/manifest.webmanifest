@@ -1,0 +1,17 @@
+{
+  "name": "Thailand 2026 Travel Companion",
+  "short_name": "Thailand 2026",
+  "description": "Mobilny plan podrozy do Tajlandii: trasa, dni, vault, SOS i checklista.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0b3236",
+  "theme_color": "#0f6f73",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

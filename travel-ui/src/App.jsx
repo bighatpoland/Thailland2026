@@ -1,695 +1,728 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import {
+  AlertTriangle,
+  CalendarDays,
+  CheckCircle2,
+  Circle,
+  ClipboardCheck,
+  CloudSun,
+  Download,
+  ExternalLink,
+  Heart,
+  Home,
+  Luggage,
+  MapPinned,
+  Navigation,
+  NotebookPen,
+  Phone,
+  Plane,
+  Route,
+  Search,
+  Shield,
+  Star,
+  Utensils,
+  Waves,
+  Wifi,
+  WifiOff,
+} from 'lucide-react'
+import {
+  BOOKING_ITEMS,
+  CALENDAR_EVENTS,
+  DAY_BY_DAY,
+  DESTINATIONS,
+  DIET_CARD,
+  EMERGENCY_CONTACTS,
+  EMERGENCY_SOURCES,
+  KEY_EVENTS,
+  LINK_GROUPS,
+  LOTUS_WORKSHOP,
+  PACKING_ITEMS,
+  TRANSFER_TIMES,
+  TRANSPORT_BETWEEN_BASES,
+  TRIP_END_ISO,
+  TRIP_START_ISO,
+  WEATHER_DECISIONS,
+} from './data/trip'
+import { downloadIcs } from './utils/calendar'
 import './App.css'
 
-const TABS = [
-  { id: 'plan', label: 'Plan' },
-  { id: 'days', label: 'Dni' },
-  { id: 'transport', label: 'Transport' },
-  { id: 'links', label: 'Linki' },
-  { id: 'checklist', label: 'Checklist' },
-]
-
-const DESTINATIONS = [
-  {
-    name: 'Bangkok',
-    dates: '5-7.06 i 26-28.06',
-    nights: '4 noce łącznie',
-    photo: '/photos/bangkok.jpg',
-    focus: 'Urodziny: White Lotus Thai Cooking and Flower Garland Class + LEGO + SkyWalk + kolacja',
-  },
-  {
-    name: 'Krabi',
-    dates: '7-10.06',
-    nights: '3 noce',
-    photo: '/photos/krabi.jpg',
-    focus: 'Railay Beach i James Bond Island',
-  },
-  {
-    name: 'Phuket',
-    dates: '10-15.06',
-    nights: '5 nocy',
-    photo: '/photos/phuket.jpg',
-    focus: 'Old Town, Aquarium, Koh Racha Yai, półmaraton 14.06',
-  },
-  {
-    name: 'Khao Sok / Cheow Lan',
-    dates: '15-16.06',
-    nights: '1 noc',
-    photo: '/photos/khaosok.jpg',
-    focus: 'Boat trip + nature walk',
-  },
-  {
-    name: 'Koh Samui',
-    dates: '16-20.06',
-    nights: '4 noce',
-    photo: '/photos/samui.jpg',
-    focus: 'Rocznica 18.06: spokojny dzień + kolacja',
-  },
-  {
-    name: 'Koh Phangan',
-    dates: '20-26.06',
-    nights: '6 nocy',
-    photo: '/photos/phangan.jpg',
-    focus: 'Ang Thong, hikingi Than Sadet i Phaeng, dzień buforowy',
-  },
-]
-
-const KEY_EVENTS = [
-  {
-    date: '6.06',
-    title: 'Urodziny',
-    info: 'White Lotus Thai Cooking and Flower Garland Class + LEGO + SkyWalk + kolacja',
-  },
-  { date: '14.06', title: 'Półmaraton', info: 'Phuket, dzień recovery po starcie' },
-  { date: '18.06', title: '10. rocznica', info: 'Koh Samui, romantyczna kolacja' },
-]
-
-const LOTUS_WORKSHOP = {
-  name: 'White Lotus Thai Cooking and Flower Garland Class in Bangkok',
-  date: 'Sobota, 6.06.2026',
-  slot: 'Preferowany slot poranny',
-  diet: 'Potwierdzić wersję wegetariańską przy rezerwacji',
-  bookingUrl: 'https://www.klook.com/activity/161108-white-lotus-thai-cooking-class-in-bangkok/',
-  mapsUrl:
-    'https://www.google.com/maps/search/?api=1&query=White+Lotus+Thai+Cooking+and+Flower+Garland+Class+in+Bangkok',
-  notes: [
-    'To główny punkt dnia urodzinowego w Bangkoku.',
-    'Po warsztacie: LEGO Store -> Mahanakhon SkyWalk -> kolacja.',
-    'Warto potwierdzić godzinę startu i punkt spotkania dzień wcześniej.',
-  ],
+const STORAGE_KEYS = {
+  booking: 'thai-trip-booking-v2',
+  vault: 'thai-trip-vault-v1',
+  packing: 'thai-trip-packing-v1',
+  notes: 'thai-trip-notes-v1',
+  favorites: 'thai-trip-favorites-v1',
 }
 
-const DAY_BY_DAY = [
-  {
-    date: 'Pt 5.06',
-    base: 'Bangkok',
-    title: 'Przylot i regeneracja',
-    tags: ['Przylot', 'Lekko'],
-    bullets: [
-      'Przylot WAW -> BKK',
-      'Transfer do hotelu (Grab lub airport transfer)',
-      'Krótki spacer i szybki sen',
-    ],
-  },
-  {
-    date: 'Sb 6.06',
-    base: 'Bangkok',
-    title: 'Dzień Urodzinowy',
-    tags: ['Urodziny', 'White Lotus', 'LEGO'],
-    bullets: [
-      'White Lotus Thai Cooking and Flower Garland Class in Bangkok (slot poranny)',
-      'LEGO Store: Siam Paragon lub CentralWorld',
-      'Mahanakhon SkyWalk na golden hour',
-      'Kolacja urodzinowa',
-    ],
-  },
-  {
-    date: 'Nd 7.06',
-    base: 'Bangkok -> Krabi',
-    title: 'Transfer lotniczy',
-    tags: ['Lot krajowy'],
-    bullets: ['Lot BKK -> KBV', 'Transfer do Ao Nang', 'Luźny wieczór'],
-  },
-  {
-    date: 'Pn 8.06',
-    base: 'Krabi',
-    title: 'Railay Beach',
-    tags: ['Long-tail'],
-    bullets: [
-      'Long-tail boat z Ao Nang',
-      'Plażowo-spacerowy dzień + opcjonalny viewpoint',
-      'Powrót przed wieczorem',
-    ],
-  },
-  {
-    date: 'Wt 9.06',
-    base: 'Krabi',
-    title: 'James Bond Island',
-    tags: ['Boat day'],
-    bullets: [
-      'Całodniowa wycieczka po Ao Phang Nga',
-      'Wczesny start, powrót wieczorem',
-    ],
-  },
-  {
-    date: 'Śr 10.06',
-    base: 'Krabi -> Phuket',
-    title: 'Transfer ze stopem kulturowym',
-    tags: ['Prywatny transfer'],
-    bullets: [
-      'Przejazd prywatnym autem',
-      'Stop 45-60 min: Wat Phra Thong',
-      'Check-in w Phuket',
-    ],
-  },
-  {
-    date: 'Czw 11.06',
-    base: 'Phuket',
-    title: 'Old Town + Aquarium',
-    tags: ['Miasto'],
-    bullets: [
-      'Spacer po Phuket Old Town',
-      'Popołudnie: Aquaria Phuket (Central Floresta)',
-    ],
-  },
-  {
-    date: 'Pt 12.06',
-    base: 'Phuket',
-    title: 'Koh Racha Yai day trip',
-    tags: ['Speedboat', 'Snorkeling'],
-    bullets: [
-      'Hotel -> Chalong Pier -> speedboat RT',
-      'Snorkeling + plaża',
-      'Lekka kolacja po powrocie',
-    ],
-  },
-  {
-    date: 'Sb 13.06',
-    base: 'Phuket',
-    title: 'Dzień przedstartowy',
-    tags: ['Taper', 'Regeneracja'],
-    bullets: [
-      'Lekki ruch 20-30 min',
-      'Nawodnienie + przygotowanie rzeczy startowych',
-      'Bez łodzi i bez długich przejazdów',
-    ],
-  },
-  {
-    date: 'Nd 14.06',
-    base: 'Phuket',
-    title: 'Półmaraton',
-    tags: ['Race day'],
-    bullets: [
-      'Start wcześnie rano (Laguna Phuket Marathon weekend)',
-      'Recovery, elektrolity, spokojny wieczór',
-    ],
-  },
-  {
-    date: 'Pn 15.06',
-    base: 'Phuket -> Khao Sok',
-    title: 'Transfer do natury',
-    tags: ['Prywatny transfer'],
-    bullets: [
-      'Przejazd do strefy Khao Sok / Cheow Lan',
-      'Boat trip krótki albo spokojny check-in',
-    ],
-  },
-  {
-    date: 'Wt 16.06',
-    base: 'Khao Sok -> Donsak -> Samui',
-    title: 'Auto + prom',
-    tags: ['Ferry'],
-    bullets: [
-      'Przejazd do Donsak Pier',
-      'Prom na Koh Samui',
-      'Wieczorem tylko chill',
-    ],
-  },
-  {
-    date: 'Śr 17.06',
-    base: 'Koh Samui',
-    title: 'Luźny dzień',
-    tags: ['Slow travel'],
-    bullets: ['Lekki dzień bez pośpiechu'],
-  },
-  {
-    date: 'Czw 18.06',
-    base: 'Koh Samui',
-    title: '10. Rocznica',
-    tags: ['Rocznica'],
-    bullets: ['Spokojny dzień', 'Romantyczna kolacja z opcjami vege'],
-  },
-  {
-    date: 'Pt 19.06',
-    base: 'Samui -> Phangan',
-    title: 'Transfer promem',
-    tags: ['Ferry'],
-    bullets: ['Transfer do portu + prom', 'Check-in i odpoczynek'],
-  },
-  {
-    date: 'Sb 20.06',
-    base: 'Koh Phangan',
-    title: 'Soft start',
-    tags: ['Adaptacja'],
-    bullets: ['Luźny rekonesans wyspy'],
-  },
-  {
-    date: 'Nd 21.06',
-    base: 'Koh Phangan',
-    title: 'Ang Thong Marine Park',
-    tags: ['Boat day', 'Kajak'],
-    bullets: [
-      'Day trip: boat + kajak + viewpoint hike',
-      'Wybór najlepszego okna pogodowego',
-    ],
-  },
-  {
-    date: 'Pn 22.06',
-    base: 'Koh Phangan',
-    title: 'Hiking 1: Than Sadet',
-    tags: ['Nature'],
-    bullets: ['Trekking + wodospad', 'Wczesny start (chłodniej)'],
-  },
-  {
-    date: 'Wt 23.06',
-    base: 'Koh Phangan',
-    title: 'Hiking 2: Phaeng area',
-    tags: ['Nature'],
-    bullets: ['Trekking + viewpoint', 'Wariant trasy wg warunków'],
-  },
-  {
-    date: 'Śr 24.06',
-    base: 'Koh Phangan',
-    title: 'Bufor pogodowy',
-    tags: ['Plan B'],
-    bullets: ['Dzień rezerwowy na boat trip/hiking'],
-  },
-  {
-    date: 'Czw 25.06',
-    base: 'Koh Phangan',
-    title: 'Free day',
-    tags: ['Dowolny'],
-    bullets: ['Snorkeling, relaks lub spa'],
-  },
-  {
-    date: 'Pt 26.06',
-    base: 'Phangan -> Samui -> Bangkok',
-    title: 'Powrót na Bangkok',
-    tags: ['Ferry + lot'],
-    bullets: ['Prom + lot USM -> BKK', 'Lekki wieczór'],
-  },
-  {
-    date: 'Sb 27.06',
-    base: 'Bangkok',
-    title: 'Domknięcie podróży',
-    tags: ['Elastycznie'],
-    bullets: ['Spacer, zakupy, ostatnie atrakcje'],
-  },
-  {
-    date: 'Nd 28.06',
-    base: 'Bangkok -> Warszawa',
-    title: 'Wylot',
-    tags: ['Powrót'],
-    bullets: ['Wylot międzynarodowy BKK -> WAW'],
-  },
+const TABS = [
+  { id: 'today', label: 'Dzisiaj', Icon: Home },
+  { id: 'days', label: 'Dni', Icon: CalendarDays },
+  { id: 'route', label: 'Mapa', Icon: MapPinned },
+  { id: 'vault', label: 'Vault', Icon: ClipboardCheck },
+  { id: 'sos', label: 'SOS', Icon: Shield },
 ]
 
-const TRANSPORT_BETWEEN_BASES = [
-  'BKK -> KBV: lot krajowy (najlepiej bez zmiany lotniska).',
-  'Krabi -> Phuket: prywatny transfer autem + postój Wat Phra Thong.',
-  'Phuket -> Khao Sok: prywatny transfer autem.',
-  'Khao Sok -> Donsak -> Samui: auto + prom.',
-  'Samui -> Phangan: prom.',
-  'Phangan -> Samui -> BKK: prom + lot.',
-]
+const weatherLabels = {
+  low: 'spokojnie',
+  medium: 'monitoruj',
+  high: 'plan B gotowy',
+}
 
-const TRANSPORT_LOCAL = [
-  'Bangkok: Grab + BTS/MRT.',
-  'Krabi: Grab/taxi + long-tail do Railay.',
-  'Phuket: Grab/Bolt + prebook transfery na bieg i do Chalong Pier.',
-  'Samui / Phangan: taxi lub songthaew (ustalanie ceny przed startem).',
-]
-
-const TRANSFER_TIMES = [
-  'Krabi -> Phuket: ~3-3.5h',
-  'Phuket -> Khao Sok: ~2.5-3h',
-  'Khao Sok -> Donsak: ~2.5-3h',
-  'Donsak -> Samui (prom): ~1.5h',
-  'Samui -> Phangan (prom): ~30-60 min',
-]
-
-const LINK_GROUPS = [
-  {
-    title: 'Bieg i aktywności',
-    items: [
-      {
-        label: 'Laguna Phuket Marathon',
-        href: 'https://phuketmarathon.com/registration/',
-      },
-      {
-        label: 'White Lotus Thai Cooking and Flower Garland Class in Bangkok',
-        href: 'https://www.klook.com/activity/161108-white-lotus-thai-cooking-class-in-bangkok/',
-      },
-      {
-        label: 'Mahanakhon SkyWalk',
-        href: 'https://kingpowermahanakhon.co.th/plan-your-visit/',
-      },
-      {
-        label: 'Aquaria Phuket',
-        href: 'https://www.aquaria-phuket.com/',
-      },
-    ],
-  },
-  {
-    title: 'Promy i loty',
-    items: [
-      { label: 'Bangkok Airways Route Map', href: 'https://www.bangkok-airway.com/route-map' },
-      { label: 'Raja Ferry', href: 'https://www.rajaferry.com/' },
-      { label: 'Seatran Ferry', href: 'https://www.seatranferry.com/' },
-      { label: 'Lomprayah Timetable', href: 'https://www.lomprayah.com/time-table' },
-    ],
-  },
-  {
-    title: 'Miejsca i planowanie trasy',
-    items: [
-      {
-        label: 'Google Maps: pełna trasa przejazdu',
-        href: 'https://www.google.com/maps/dir/Bangkok,+Thailand/Krabi,+Thailand/Phuket,+Thailand/Khao+Sok+National+Park,+Thailand/Donsak+Pier,+Surat+Thani,+Thailand/Koh+Samui,+Thailand/Koh+Phangan,+Thailand/Bangkok,+Thailand',
-      },
-      { label: 'Wat Phra Thong info', href: 'https://www.phuket101.net/wat-phra-thong/' },
-      {
-        label: 'Railay (TAT)',
-        href: 'https://www.tourismthailand.org/Trip-Planner/Suggestion-Detail/ao-railay-railay-bay-tham-phra-nang-beach-phra-nang-cave-beach-thale-waek-separated-sea-ko-po-da-khao-khanap-nam-viewpoint-tha-pom-khlang-cave',
-      },
-      {
-        label: 'Koh Phangan (TAT)',
-        href: 'https://www.tourismthailand.org/Destinations/Provinces/Ko-Pha-ngan/358',
-      },
-    ],
-  },
-  {
-    title: 'Pogoda i morze',
-    items: [
-      { label: 'TMD daily forecast', href: 'https://tmd.go.th/en/forecast/daily' },
-      { label: 'TMD shipping forecast', href: 'https://tmd.go.th/en/forecast/shipping' },
-      {
-        label: 'Climate June Samui',
-        href: 'https://weatherspark.com/m/112991/6/Average-Weather-in-June-in-Ko-Samui-Thailand',
-      },
-      {
-        label: 'Climate June Phuket',
-        href: 'https://weatherspark.com/m/112764/6/Average-Weather-in-June-in-Phuket-Thailand',
-      },
-    ],
-  },
-]
-
-const OPERATING_RULES = [
-  'Bez ciężkich transferów w dniu półmaratonu i rocznicy.',
-  'Boat day planować wcześnie w pobycie danej bazy.',
-  '13.06 pozostaje lekki (ochrona energii przed biegiem).',
-  '18.06 bez dużych transferów (ochrona dnia rocznicowego).',
-  'Przy promach i lotach zostawiaj minimum 2-3h buforu.',
-]
-
-const WEATHER_PLAN_B = [
-  'Jeśli Koh Racha Yai (12.06) odwołane: przenieść na 13.06 rano tylko przy spokojnym morzu.',
-  'Jeśli Ang Thong (21.06) odwołane: przenieść na 24.06 (dzień buforowy).',
-  'Jeśli hiking wypada przez deszcz: zamienić z free day.',
-]
-
-const BOOKING_ITEMS = [
-  { id: 'intl-flights', priority: 'Priorytet 1', text: 'Loty międzynarodowe WAW <-> BKK' },
-  { id: 'domestic-bkk-kbv', priority: 'Priorytet 1', text: 'Lot krajowy BKK -> KBV' },
-  { id: 'domestic-usm-bkk', priority: 'Priorytet 1', text: 'Lot USM -> BKK' },
-  { id: 'accommodations', priority: 'Priorytet 1', text: 'Noclegi we wszystkich 7 bazach' },
-  {
-    id: 'lotus',
-    priority: 'Priorytet 2',
-    text: 'White Lotus Thai Cooking and Flower Garland Class in Bangkok (6.06 rano, opcja vege)',
-  },
-  { id: 'race', priority: 'Priorytet 2', text: 'Rejestracja półmaratonu + odbiór pakietu' },
-  { id: 'bond-tour', priority: 'Priorytet 2', text: 'James Bond Island tour (Krabi)' },
-  { id: 'racha-yai', priority: 'Priorytet 2', text: 'Koh Racha Yai day trip (speedboat)' },
-  { id: 'ang-thong', priority: 'Priorytet 2', text: 'Ang Thong Marine Park day trip' },
-  { id: 'cheow-lan', priority: 'Priorytet 2', text: 'Boat trip Cheow Lan / Khao Sok' },
-  { id: 'transfer-krabi-phuket', priority: 'Priorytet 3', text: 'Transfer Krabi -> Phuket + Wat Phra Thong' },
-  { id: 'transfer-phuket-khaosok', priority: 'Priorytet 3', text: 'Transfer Phuket -> Khao Sok' },
-  { id: 'ferries', priority: 'Priorytet 3', text: 'Promy Donsak <-> Samui <-> Phangan' },
-  { id: 'race-day-transfer', priority: 'Priorytet 3', text: 'Transfery hotel -> start -> hotel (14.06)' },
-]
-
-const STORAGE_KEY = 'thai-trip-checklist-v1'
-
-function readChecklist() {
+function readStoredValue(key, fallback) {
   if (typeof window === 'undefined') {
-    return {}
+    return fallback
   }
 
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY)
-    if (!raw) {
-      return {}
-    }
-    const parsed = JSON.parse(raw)
-    return typeof parsed === 'object' && parsed ? parsed : {}
+    const raw = window.localStorage.getItem(key)
+    return raw ? JSON.parse(raw) : fallback
   } catch {
-    return {}
+    return fallback
   }
 }
 
-function App() {
-  const [activeTab, setActiveTab] = useState('plan')
-  const [checklistState, setChecklistState] = useState(readChecklist)
+function useStoredState(key, fallback) {
+  const [value, setValue] = useState(() => readStoredValue(key, fallback))
 
-  const groupedChecklist = useMemo(() => {
-    return BOOKING_ITEMS.reduce((acc, item) => {
-      acc[item.priority] ||= []
-      acc[item.priority].push(item)
-      return acc
-    }, {})
+  useEffect(() => {
+    window.localStorage.setItem(key, JSON.stringify(value))
+  }, [key, value])
+
+  return [value, setValue]
+}
+
+function dateToLocalIso(date) {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
+function daysBetween(fromIso, toIso) {
+  const from = new Date(`${fromIso}T00:00:00`)
+  const to = new Date(`${toIso}T00:00:00`)
+  return Math.round((to - from) / 86_400_000)
+}
+
+function getTripPosition() {
+  const todayIso = dateToLocalIso(new Date())
+  const todayIndex = DAY_BY_DAY.findIndex((day) => day.iso === todayIso)
+
+  if (todayIndex >= 0) {
+    return {
+      mode: 'in-trip',
+      todayIso,
+      activeDay: DAY_BY_DAY[todayIndex],
+      nextDay: DAY_BY_DAY[todayIndex + 1],
+      label: `Dzien ${todayIndex + 1} z ${DAY_BY_DAY.length}`,
+    }
+  }
+
+  if (todayIso < TRIP_START_ISO) {
+    return {
+      mode: 'before',
+      todayIso,
+      activeDay: DAY_BY_DAY[0],
+      nextDay: DAY_BY_DAY[1],
+      label: `${daysBetween(todayIso, TRIP_START_ISO)} dni do wyjazdu`,
+    }
+  }
+
+  if (todayIso > TRIP_END_ISO) {
+    return {
+      mode: 'after',
+      todayIso,
+      activeDay: DAY_BY_DAY.at(-1),
+      nextDay: null,
+      label: 'Podroz zakonczona',
+    }
+  }
+
+  return {
+    mode: 'between',
+    todayIso,
+    activeDay: DAY_BY_DAY[0],
+    nextDay: DAY_BY_DAY[1],
+    label: 'Plan gotowy',
+  }
+}
+
+function groupBy(items, key) {
+  return items.reduce((groups, item) => {
+    groups[item[key]] ||= []
+    groups[item[key]].push(item)
+    return groups
+  }, {})
+}
+
+function App() {
+  const [activeTab, setActiveTab] = useState('today')
+  const [query, setQuery] = useState('')
+  const [online, setOnline] = useState(() => navigator.onLine)
+  const [bookingState, setBookingState] = useStoredState(STORAGE_KEYS.booking, {})
+  const [vaultState, setVaultState] = useStoredState(STORAGE_KEYS.vault, {})
+  const [packingState, setPackingState] = useStoredState(STORAGE_KEYS.packing, {})
+  const [notesState, setNotesState] = useStoredState(STORAGE_KEYS.notes, {})
+  const [favoritesState, setFavoritesState] = useStoredState(STORAGE_KEYS.favorites, {})
+
+  useEffect(() => {
+    const updateOnline = () => setOnline(navigator.onLine)
+    window.addEventListener('online', updateOnline)
+    window.addEventListener('offline', updateOnline)
+    return () => {
+      window.removeEventListener('online', updateOnline)
+      window.removeEventListener('offline', updateOnline)
+    }
   }, [])
 
-  const completedCount = BOOKING_ITEMS.filter((item) => checklistState[item.id]).length
+  const tripPosition = useMemo(() => getTripPosition(), [])
+  const filteredDays = useMemo(() => {
+    const normalized = query.trim().toLowerCase()
+    if (!normalized) {
+      return DAY_BY_DAY
+    }
 
-  const toggleChecklistItem = (id) => {
-    setChecklistState((prev) => {
-      const next = {
-        ...prev,
-        [id]: !prev[id],
-      }
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
-      return next
-    })
+    return DAY_BY_DAY.filter((day) =>
+      [day.date, day.base, day.title, day.tags.join(' '), day.bullets.join(' ')]
+        .join(' ')
+        .toLowerCase()
+        .includes(normalized),
+    )
+  }, [query])
+
+  const checkedBookings = BOOKING_ITEMS.filter((item) => bookingState[item.id]).length
+  const checkedPacking = PACKING_ITEMS.filter((item) => packingState[item.id]).length
+  const bookingGroups = useMemo(() => groupBy(BOOKING_ITEMS, 'priority'), [])
+  const packingGroups = useMemo(() => groupBy(PACKING_ITEMS, 'group'), [])
+
+  const updateVault = (id, field, value) => {
+    setVaultState((previous) => ({
+      ...previous,
+      [id]: {
+        ...previous[id],
+        [field]: value,
+      },
+    }))
   }
 
   return (
-    <main className="app">
-      <header className="hero-card">
-        <p className="eyebrow">Thailand Pocket Planner</p>
-        <h1>Tajlandia 5-28 czerwca 2026</h1>
-        <p className="subtitle">
-          Mobilny plan podróży: trasa, dzień po dniu, transport, kluczowe linki i checklista
-          rezerwacji.
-        </p>
+    <main className="app-shell">
+      <StatusPill online={online} label={tripPosition.label} />
 
-        <div className="event-grid">
-          {KEY_EVENTS.map((event) => (
-            <article className="event-chip" key={event.title}>
-              <p>{event.date}</p>
-              <h3>{event.title}</h3>
-              <small>{event.info}</small>
-            </article>
-          ))}
+      <section className="hero-glass">
+        <div>
+          <p className="eyebrow">Thailand 2026</p>
+          <h1>Wasz kieszonkowy plan podrozy</h1>
+          <p>
+            23 noce, bieg na Phuket, urodziny w Bangkoku i rocznica na Koh Samui. Wszystko
+            pod reka, z zapisem lokalnym na telefonie.
+          </p>
         </div>
-      </header>
+        <button className="icon-action primary" type="button" onClick={() => downloadIcs(CALENDAR_EVENTS)}>
+          <Download size={18} aria-hidden="true" />
+          ICS
+        </button>
+      </section>
 
-      <nav className="tabbar" aria-label="Sekcje planu podróży">
-        {TABS.map((tab) => (
+      <nav className="tabbar" aria-label="Sekcje aplikacji">
+        {TABS.map(({ id, label, Icon }) => (
           <button
-            key={tab.id}
+            key={id}
             type="button"
-            className={tab.id === activeTab ? 'active' : ''}
-            onClick={() => setActiveTab(tab.id)}
+            className={activeTab === id ? 'active' : ''}
+            onClick={() => setActiveTab(id)}
           >
-            {tab.label}
+            <Icon size={18} aria-hidden="true" />
+            <span>{label}</span>
           </button>
         ))}
       </nav>
 
-      {activeTab === 'plan' && (
-        <section className="section-stack">
-          <article className="card workshop-card">
-            <h2>Warsztat Urodzinowy</h2>
-            <h3>{LOTUS_WORKSHOP.name}</h3>
-            <dl className="workshop-meta">
-              <div>
-                <dt>Data</dt>
-                <dd>{LOTUS_WORKSHOP.date}</dd>
-              </div>
-              <div>
-                <dt>Slot</dt>
-                <dd>{LOTUS_WORKSHOP.slot}</dd>
-              </div>
-              <div>
-                <dt>Dieta</dt>
-                <dd>{LOTUS_WORKSHOP.diet}</dd>
-              </div>
-            </dl>
-            <div className="workshop-actions">
-              <a href={LOTUS_WORKSHOP.bookingUrl} target="_blank" rel="noreferrer">
-                Rezerwacja warsztatu
-              </a>
-              <a href={LOTUS_WORKSHOP.mapsUrl} target="_blank" rel="noreferrer">
-                Nawigacja do miejsca
-              </a>
-            </div>
-            <ul className="clean-list">
-              {LOTUS_WORKSHOP.notes.map((note) => (
-                <li key={note}>{note}</li>
-              ))}
-            </ul>
-          </article>
-
-          <article className="card">
-            <h2>Mapa Trasy</h2>
-            <a
-              className="inline-link"
-              href="https://www.google.com/maps/dir/Bangkok,+Thailand/Krabi,+Thailand/Phuket,+Thailand/Khao+Sok+National+Park,+Thailand/Donsak+Pier,+Surat+Thani,+Thailand/Koh+Samui,+Thailand/Koh+Phangan,+Thailand/Bangkok,+Thailand"
-              target="_blank"
-              rel="noreferrer"
-            >
-              Otwórz trasę w Google Maps
-            </a>
-            <img
-              className="route-map"
-              src="/maps/route-thailand.png"
-              alt="Mapa trasy: Bangkok, Krabi, Phuket, Khao Sok, Donsak, Koh Samui, Koh Phangan, Bangkok"
-            />
-          </article>
-
-          <article className="card">
-            <h2>Bazy Noclegowe (23 noce)</h2>
-            <div className="destination-grid">
-              {DESTINATIONS.map((destination) => (
-                <article key={destination.name} className="destination-card">
-                  <img src={destination.photo} alt={destination.name} loading="lazy" />
-                  <div>
-                    <h3>{destination.name}</h3>
-                    <p>{destination.dates}</p>
-                    <p>{destination.nights}</p>
-                    <small>{destination.focus}</small>
-                  </div>
-                </article>
-              ))}
-            </div>
-          </article>
-
-          <article className="card">
-            <h2>Zasady Operacyjne</h2>
-            <ul className="clean-list">
-              {OPERATING_RULES.map((rule) => (
-                <li key={rule}>{rule}</li>
-              ))}
-            </ul>
-            <h3>Plan B Pogodowy</h3>
-            <ul className="clean-list">
-              {WEATHER_PLAN_B.map((rule) => (
-                <li key={rule}>{rule}</li>
-              ))}
-            </ul>
-          </article>
-        </section>
+      {activeTab === 'today' && (
+        <TodayView
+          checkedBookings={checkedBookings}
+          checkedPacking={checkedPacking}
+          favoritesState={favoritesState}
+          setActiveTab={setActiveTab}
+          tripPosition={tripPosition}
+        />
       )}
 
       {activeTab === 'days' && (
-        <section className="section-stack">
-          <article className="card">
-            <h2>Plan Dzień po Dniu</h2>
-            <div className="timeline">
-              {DAY_BY_DAY.map((day) => (
-                <details key={`${day.date}-${day.title}`}>
-                  <summary>
-                    <div>
-                      <strong>{day.date}</strong>
-                      <p>{day.base}</p>
-                    </div>
-                    <span>{day.title}</span>
-                  </summary>
+        <DaysView
+          favoritesState={favoritesState}
+          filteredDays={filteredDays}
+          notesState={notesState}
+          query={query}
+          setFavoritesState={setFavoritesState}
+          setNotesState={setNotesState}
+          setQuery={setQuery}
+        />
+      )}
 
-                  <div className="tags">
-                    {day.tags.map((tag) => (
-                      <small key={tag}>{tag}</small>
-                    ))}
-                  </div>
+      {activeTab === 'route' && <RouteView />}
 
-                  <ul className="clean-list">
-                    {day.bullets.map((bullet) => (
-                      <li key={bullet}>{bullet}</li>
-                    ))}
-                  </ul>
-                </details>
+      {activeTab === 'vault' && (
+        <VaultView
+          bookingGroups={bookingGroups}
+          bookingState={bookingState}
+          checkedBookings={checkedBookings}
+          checkedPacking={checkedPacking}
+          packingGroups={packingGroups}
+          packingState={packingState}
+          setBookingState={setBookingState}
+          setPackingState={setPackingState}
+          updateVault={updateVault}
+          vaultState={vaultState}
+        />
+      )}
+
+      {activeTab === 'sos' && <SosView />}
+    </main>
+  )
+}
+
+function StatusPill({ online, label }) {
+  const Icon = online ? Wifi : WifiOff
+
+  return (
+    <div className="status-strip">
+      <span>{label}</span>
+      <span>
+        <Icon size={15} aria-hidden="true" />
+        {online ? 'online' : 'offline'}
+      </span>
+    </div>
+  )
+}
+
+function TodayView({ checkedBookings, checkedPacking, favoritesState, setActiveTab, tripPosition }) {
+  const favoriteDays = DAY_BY_DAY.filter((day) => favoritesState[day.iso])
+
+  return (
+    <section className="screen-stack">
+      <section className="glass-panel today-panel">
+        <div className="panel-heading">
+          <div>
+            <p className="eyebrow">Next up</p>
+            <h2>{tripPosition.activeDay.title}</h2>
+          </div>
+          <span className={`risk-chip ${tripPosition.activeDay.weather}`}>
+            <CloudSun size={15} aria-hidden="true" />
+            {weatherLabels[tripPosition.activeDay.weather]}
+          </span>
+        </div>
+        <p className="muted">
+          {tripPosition.activeDay.date} · {tripPosition.activeDay.base}
+        </p>
+        <ul className="clean-list">
+          {tripPosition.activeDay.bullets.map((bullet) => (
+            <li key={bullet}>{bullet}</li>
+          ))}
+        </ul>
+        <div className="quick-actions">
+          <button type="button" onClick={() => setActiveTab('days')}>
+            <CalendarDays size={17} aria-hidden="true" />
+            Dzien po dniu
+          </button>
+          <button type="button" onClick={() => setActiveTab('route')}>
+            <Navigation size={17} aria-hidden="true" />
+            Nawigacje
+          </button>
+        </div>
+      </section>
+
+      <section className="metrics-grid">
+        <Metric icon={Plane} label="Bazy" value="7" />
+        <Metric icon={ClipboardCheck} label="Rezerwacje" value={`${checkedBookings}/${BOOKING_ITEMS.length}`} />
+        <Metric icon={Luggage} label="Pakowanie" value={`${checkedPacking}/${PACKING_ITEMS.length}`} />
+      </section>
+
+      <section className="glass-panel">
+        <div className="panel-heading">
+          <h2>Daty, ktore chronimy</h2>
+          <CalendarDays size={19} aria-hidden="true" />
+        </div>
+        <div className="event-list">
+          {KEY_EVENTS.map((event) => (
+            <div className="event-row" key={event.title}>
+              <strong>{event.date}</strong>
+              <div>
+                <h3>{event.title}</h3>
+                <p>{event.info}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="glass-panel workshop-panel">
+        <div className="panel-heading">
+          <div>
+            <p className="eyebrow">Urodziny</p>
+            <h2>{LOTUS_WORKSHOP.name}</h2>
+          </div>
+          <Utensils size={20} aria-hidden="true" />
+        </div>
+        <div className="meta-grid">
+          <span>{LOTUS_WORKSHOP.date}</span>
+          <span>{LOTUS_WORKSHOP.slot}</span>
+          <span>{LOTUS_WORKSHOP.diet}</span>
+        </div>
+        <div className="quick-actions">
+          <a href={LOTUS_WORKSHOP.bookingUrl} target="_blank" rel="noreferrer">
+            <ExternalLink size={17} aria-hidden="true" />
+            Rezerwacja
+          </a>
+          <a href={LOTUS_WORKSHOP.mapsUrl} target="_blank" rel="noreferrer">
+            <MapPinned size={17} aria-hidden="true" />
+            Mapa
+          </a>
+        </div>
+      </section>
+
+      {favoriteDays.length > 0 && (
+        <section className="glass-panel">
+          <div className="panel-heading">
+            <h2>Zapisane dni</h2>
+            <Heart size={19} aria-hidden="true" />
+          </div>
+          <div className="compact-list">
+            {favoriteDays.map((day) => (
+              <span key={day.iso}>
+                {day.date} · {day.title}
+              </span>
+            ))}
+          </div>
+        </section>
+      )}
+    </section>
+  )
+}
+
+function Metric({ icon: Icon, label, value }) {
+  return (
+    <div className="metric glass-panel">
+      <Icon size={18} aria-hidden="true" />
+      <span>{label}</span>
+      <strong>{value}</strong>
+    </div>
+  )
+}
+
+function DaysView({
+  favoritesState,
+  filteredDays,
+  notesState,
+  query,
+  setFavoritesState,
+  setNotesState,
+  setQuery,
+}) {
+  return (
+    <section className="screen-stack">
+      <label className="search-box">
+        <Search size={18} aria-hidden="true" />
+        <input
+          type="search"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder="Szukaj: prom, bieg, Railay..."
+        />
+      </label>
+
+      <div className="day-list">
+        {filteredDays.map((day) => (
+          <details className="glass-panel day-panel" key={day.iso}>
+            <summary>
+              <div>
+                <span>{day.date}</span>
+                <h2>{day.title}</h2>
+                <p>{day.base}</p>
+              </div>
+              <button
+                aria-label="Oznacz dzien"
+                className={favoritesState[day.iso] ? 'round-icon active' : 'round-icon'}
+                type="button"
+                onClick={(event) => {
+                  event.preventDefault()
+                  setFavoritesState((previous) => ({ ...previous, [day.iso]: !previous[day.iso] }))
+                }}
+              >
+                <Star size={17} aria-hidden="true" />
+              </button>
+            </summary>
+
+            <div className="tag-row">
+              {day.tags.map((tag) => (
+                <span key={tag}>{tag}</span>
+              ))}
+              <span className={`risk-chip ${day.weather}`}>{weatherLabels[day.weather]}</span>
+            </div>
+
+            <ul className="clean-list">
+              {day.bullets.map((bullet) => (
+                <li key={bullet}>{bullet}</li>
+              ))}
+            </ul>
+
+            <div className="link-grid">
+              {day.nav.map((item) => (
+                <a href={item.href} key={item.label} target="_blank" rel="noreferrer">
+                  <Navigation size={16} aria-hidden="true" />
+                  {item.label}
+                </a>
               ))}
             </div>
-          </article>
-        </section>
-      )}
 
-      {activeTab === 'transport' && (
-        <section className="section-stack">
-          <article className="card">
-            <h2>Transport Między Bazami</h2>
-            <ul className="clean-list">
-              {TRANSPORT_BETWEEN_BASES.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-          </article>
+            <label className="note-field">
+              <NotebookPen size={17} aria-hidden="true" />
+              <textarea
+                value={notesState[day.iso] || ''}
+                onChange={(event) =>
+                  setNotesState((previous) => ({ ...previous, [day.iso]: event.target.value }))
+                }
+                placeholder="Notatki: godzina pickup, hotel, numer rezerwacji..."
+              />
+            </label>
+          </details>
+        ))}
+      </div>
+    </section>
+  )
+}
 
-          <article className="card">
-            <h2>Transport Lokalny</h2>
-            <ul className="clean-list">
-              {TRANSPORT_LOCAL.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-          </article>
+function RouteView() {
+  return (
+    <section className="screen-stack">
+      <section className="glass-panel">
+        <div className="panel-heading">
+          <h2>Trasa po kolei</h2>
+          <Route size={20} aria-hidden="true" />
+        </div>
+        <a
+          className="map-link"
+          href="https://www.google.com/maps/dir/Bangkok,+Thailand/Krabi,+Thailand/Phuket,+Thailand/Khao+Sok+National+Park,+Thailand/Donsak+Pier,+Surat+Thani,+Thailand/Koh+Samui,+Thailand/Koh+Phangan,+Thailand/Bangkok,+Thailand"
+          target="_blank"
+          rel="noreferrer"
+        >
+          <img
+            src="/maps/route-thailand.png"
+            alt="Mapa trasy Bangkok, Krabi, Phuket, Khao Sok, Donsak, Koh Samui, Koh Phangan, Bangkok"
+          />
+        </a>
+      </section>
 
-          <article className="card">
-            <h2>Czasy Orientacyjne</h2>
-            <ul className="clean-list">
-              {TRANSFER_TIMES.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-          </article>
-        </section>
-      )}
-
-      {activeTab === 'links' && (
-        <section className="section-stack">
-          {LINK_GROUPS.map((group) => (
-            <article className="card" key={group.title}>
-              <h2>{group.title}</h2>
-              <ul className="link-list">
-                {group.items.map((item) => (
-                  <li key={item.href}>
-                    <a href={item.href} target="_blank" rel="noreferrer">
-                      {item.label}
-                    </a>
-                  </li>
-                ))}
-              </ul>
+      <section className="glass-panel">
+        <div className="panel-heading">
+          <h2>Bazy</h2>
+          <MapPinned size={20} aria-hidden="true" />
+        </div>
+        <div className="destination-strip">
+          {DESTINATIONS.map((destination) => (
+            <article className="destination-card" key={destination.name}>
+              <img src={destination.photo} alt="" loading="lazy" />
+              <div>
+                <h3>{destination.name}</h3>
+                <p>{destination.dates}</p>
+                <span>{destination.nights}</span>
+                <small>{destination.focus}</small>
+              </div>
             </article>
           ))}
-        </section>
-      )}
+        </div>
+      </section>
 
-      {activeTab === 'checklist' && (
-        <section className="section-stack">
-          <article className="card">
-            <h2>Checklista Rezerwacji</h2>
-            <p className="progress">Ukończone: {completedCount} / {BOOKING_ITEMS.length}</p>
+      <section className="glass-panel">
+        <div className="panel-heading">
+          <h2>Transport</h2>
+          <Plane size={20} aria-hidden="true" />
+        </div>
+        <ul className="clean-list">
+          {TRANSPORT_BETWEEN_BASES.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
+        <div className="compact-list">
+          {TRANSFER_TIMES.map((item) => (
+            <span key={item}>{item}</span>
+          ))}
+        </div>
+      </section>
 
-            {Object.entries(groupedChecklist).map(([priority, items]) => (
-              <section key={priority} className="check-group">
-                <h3>{priority}</h3>
-                {items.map((item) => (
-                  <label key={item.id} className="check-item">
-                    <input
-                      type="checkbox"
-                      checked={Boolean(checklistState[item.id])}
-                      onChange={() => toggleChecklistItem(item.id)}
-                    />
-                    <span>{item.text}</span>
-                  </label>
-                ))}
-              </section>
+      <section className="glass-panel">
+        <div className="panel-heading">
+          <h2>Boat days i pogoda</h2>
+          <Waves size={20} aria-hidden="true" />
+        </div>
+        <div className="decision-grid">
+          {WEATHER_DECISIONS.map((decision) => (
+            <article className="decision-row" key={decision.title}>
+              <strong>{decision.date}</strong>
+              <div>
+                <h3>{decision.title}</h3>
+                <p>{decision.trigger}</p>
+                <span>{decision.action}</span>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+    </section>
+  )
+}
+
+function VaultView({
+  bookingGroups,
+  bookingState,
+  checkedBookings,
+  checkedPacking,
+  packingGroups,
+  packingState,
+  setBookingState,
+  setPackingState,
+  updateVault,
+  vaultState,
+}) {
+  return (
+    <section className="screen-stack">
+      <section className="metrics-grid">
+        <Metric icon={ClipboardCheck} label="Rezerwacje" value={`${checkedBookings}/${BOOKING_ITEMS.length}`} />
+        <Metric icon={Luggage} label="Pakowanie" value={`${checkedPacking}/${PACKING_ITEMS.length}`} />
+      </section>
+
+      <section className="glass-panel">
+        <div className="panel-heading">
+          <h2>Reservation vault</h2>
+          <ClipboardCheck size={20} aria-hidden="true" />
+        </div>
+        {Object.entries(bookingGroups).map(([priority, items]) => (
+          <details className="vault-group" key={priority} open={priority === 'Priorytet 1'}>
+            <summary>{priority}</summary>
+            {items.map((item) => (
+              <article className="vault-row" key={item.id}>
+                <label className="check-line">
+                  <input
+                    type="checkbox"
+                    checked={Boolean(bookingState[item.id])}
+                    onChange={() => setBookingState((previous) => ({ ...previous, [item.id]: !previous[item.id] }))}
+                  />
+                  <span>{bookingState[item.id] ? <CheckCircle2 size={18} /> : <Circle size={18} />}</span>
+                  {item.text}
+                </label>
+                <div className="vault-inputs">
+                  <input
+                    value={vaultState[item.id]?.ref || ''}
+                    onChange={(event) => updateVault(item.id, 'ref', event.target.value)}
+                    placeholder={item.hint}
+                  />
+                  <input
+                    value={vaultState[item.id]?.contact || ''}
+                    onChange={(event) => updateVault(item.id, 'contact', event.target.value)}
+                    placeholder="kontakt / pickup / notatka"
+                  />
+                </div>
+              </article>
             ))}
-          </article>
-        </section>
-      )}
-    </main>
+          </details>
+        ))}
+      </section>
+
+      <section className="glass-panel">
+        <div className="panel-heading">
+          <h2>Packing + health</h2>
+          <Luggage size={20} aria-hidden="true" />
+        </div>
+        {Object.entries(packingGroups).map(([group, items]) => (
+          <div className="packing-group" key={group}>
+            <h3>{group}</h3>
+            {items.map((item) => (
+              <label className="check-line" key={item.id}>
+                <input
+                  type="checkbox"
+                  checked={Boolean(packingState[item.id])}
+                  onChange={() => setPackingState((previous) => ({ ...previous, [item.id]: !previous[item.id] }))}
+                />
+                <span>{packingState[item.id] ? <CheckCircle2 size={18} /> : <Circle size={18} />}</span>
+                {item.text}
+              </label>
+            ))}
+          </div>
+        ))}
+      </section>
+    </section>
+  )
+}
+
+function SosView() {
+  return (
+    <section className="screen-stack">
+      <section className="glass-panel sos-panel">
+        <div className="panel-heading">
+          <div>
+            <p className="eyebrow">Thailand emergency</p>
+            <h2>Numery alarmowe</h2>
+          </div>
+          <Shield size={21} aria-hidden="true" />
+        </div>
+        <div className="sos-grid">
+          {EMERGENCY_CONTACTS.map((contact) => (
+            <a className="sos-call" href={`tel:${contact.number}`} key={contact.number}>
+              <Phone size={19} aria-hidden="true" />
+              <strong>{contact.number}</strong>
+              <span>{contact.label}</span>
+              <small>{contact.note}</small>
+            </a>
+          ))}
+        </div>
+        <div className="source-list">
+          {EMERGENCY_SOURCES.map((source) => (
+            <a className="source-link" href={source.href} key={source.href} target="_blank" rel="noreferrer">
+              <ExternalLink size={16} aria-hidden="true" />
+              {source.label}
+            </a>
+          ))}
+        </div>
+      </section>
+
+      <section className="glass-panel">
+        <div className="panel-heading">
+          <h2>{DIET_CARD.title}</h2>
+          <Utensils size={20} aria-hidden="true" />
+        </div>
+        <p className="diet-card">{DIET_CARD.text}</p>
+      </section>
+
+      <section className="glass-panel">
+        <div className="panel-heading">
+          <h2>Linki robocze</h2>
+          <ExternalLink size={20} aria-hidden="true" />
+        </div>
+        <div className="link-groups">
+          {LINK_GROUPS.map((group) => (
+            <details className="link-group" key={group.title}>
+              <summary>{group.title}</summary>
+              <div className="link-grid">
+                {group.items.map((item) => (
+                  <a href={item.href} key={item.href} target="_blank" rel="noreferrer">
+                    <ExternalLink size={16} aria-hidden="true" />
+                    {item.label}
+                  </a>
+                ))}
+              </div>
+            </details>
+          ))}
+        </div>
+      </section>
+
+      <section className="glass-panel caution-panel">
+        <AlertTriangle size={20} aria-hidden="true" />
+        <p>
+          Dodaj w vault: numer polisy, kontakt assistance, adresy hoteli, zdjecia paszportu offline i
+          kontakty do transferow.
+        </p>
+      </section>
+    </section>
   )
 }
 
