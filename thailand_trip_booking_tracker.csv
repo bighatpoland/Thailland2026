@@ -1,0 +1,24 @@
+priority,category,item,target_date,status,notes
+A,Flights,WAW->BKK->WAW,ASAP,TODO,Prefer 1 stop and minimal airport changes
+A,Flights,BKK->KBV,ASAP,TODO,Prefer departure fitting check-in at Krabi
+A,Flights,USM->BKK,ASAP,TODO,Allow 3h buffer before long-haul connection day
+A,Hotels,Bangkok 5-7 Jun,ASAP,TODO,Near BTS/MRT
+A,Hotels,Krabi 7-10 Jun,ASAP,TODO,Ao Nang area for Railay access
+A,Hotels,Phuket 10-15 Jun,ASAP,TODO,Good access to Laguna race area or transfer-ready
+A,Hotels,Khao Sok 15-16 Jun,ASAP,TODO,Easy transfer to Cheow Lan pier
+A,Hotels,Samui 16-20 Jun,ASAP,TODO,Quiet boutique area
+A,Hotels,Phangan 20-26 Jun,ASAP,TODO,Good base for Ang Thong + hikes
+A,Hotels,Bangkok 26-28 Jun,ASAP,TODO,Low-stress airport access
+B,Activity,White Lotus Thai Cooking and Flower Garland Class in Bangkok (6 Jun),Within 7 days,TODO,Confirm vegetarian adaptation
+B,Activity,Laguna Phuket Marathon registration,Before 7 Jun 2026,TODO,Online registration cutoff shown as 7 Jun
+B,Activity,James Bond Island day tour (9 Jun),Within 14 days,TODO,Confirm hotel pick-up window
+B,Activity,Koh Racha Yai speedboat (12 Jun),Within 14 days,TODO,Sea/weather policy + free reschedule preferred
+B,Activity,Cheow Lan boat (15 or 16 Jun),Within 14 days,TODO,Pick half-day option after race recovery
+B,Activity,Ang Thong day trip (21 Jun),Within 14 days,TODO,Use 24 Jun as weather backup day
+C,Transfer,Krabi->Phuket private car + Wat Phra Thong stop,Within 14 days,TODO,Add 45-60 min temple stop
+C,Transfer,Phuket->Khao Sok private car,Within 14 days,TODO,Direct hotel-to-hotel transfer
+C,Transfer,Khao Sok->Donsak private car,Within 14 days,TODO,Coordinate with ferry departure
+C,Ferry,Donsak->Samui,Within 14 days,TODO,Seatran or Raja official booking
+C,Ferry,Samui->Phangan,Within 14 days,TODO,Select pier closest to hotel
+C,Ferry,Phangan->Samui,Within 14 days,TODO,Buffer before USM flight
+C,Race Logistics,Phuket race-day transport plan,Within 14 days,TODO,Hotel->start->hotel prebook
