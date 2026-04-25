@@ -425,6 +425,29 @@ export const LINK_GROUPS = [
   },
 ]
 
+export const WEATHER_GUIDANCE = {
+  low: {
+    title: 'Spokojny dzien',
+    summary: 'Plan dnia wyglada stabilnie. Sprawdz prognoze wieczorem i miej pod reka wode oraz SPF.',
+    checks: ['prognoza na wieczor', 'SPF + woda', 'lekka kurtka przy city walk'],
+  },
+  medium: {
+    title: 'Monitoruj warunki',
+    summary: 'Zostaw bufor czasowy i sprawdz deszcz, ruch oraz transfery przed wyjsciem.',
+    checks: ['deszcz po poludniu', 'czas transferu', 'plan B pod reka'],
+  },
+  high: {
+    title: 'Plan B gotowy',
+    summary: 'To dzien wrazliwy na fale, burze albo operatora. Potwierdz warunki zanim ruszycie.',
+    checks: ['fale i wiatr', 'status operatora', 'alternatywa na deszcz'],
+  },
+}
+
+export const WEATHER_LINKS = [
+  { label: 'Prognoza TMD', href: 'https://tmd.go.th/en/forecast/daily' },
+  { label: 'Morze / fale', href: 'https://tmd.go.th/en/forecast/shipping' },
+]
+
 export const WEATHER_DECISIONS = [
   {
     title: 'Koh Racha Yai',

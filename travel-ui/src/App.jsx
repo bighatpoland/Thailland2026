@@ -42,6 +42,8 @@ import {
   TRIP_END_ISO,
   TRIP_START_ISO,
   WEATHER_DECISIONS,
+  WEATHER_GUIDANCE,
+  WEATHER_LINKS,
 } from './data/trip'
 import { downloadIcs } from './utils/calendar'
 import './App.css'
@@ -332,6 +334,8 @@ function TodayView({ checkedBookings, checkedPacking, favoritesState, setActiveT
         </div>
       </section>
 
+      <WeatherTodayCard activeDay={tripPosition.activeDay} nextDay={tripPosition.nextDay} />
+
       <section className="metrics-grid">
         <Metric icon={Plane} label="Bazy" value="7" />
         <Metric icon={ClipboardCheck} label="Rezerwacje" value={`${checkedBookings}/${BOOKING_ITEMS.length}`} />
@@ -396,6 +400,61 @@ function TodayView({ checkedBookings, checkedPacking, favoritesState, setActiveT
           </div>
         </section>
       )}
+    </section>
+  )
+}
+
+function WeatherTodayCard({ activeDay, nextDay }) {
+  const guidance = WEATHER_GUIDANCE[activeDay.weather] || WEATHER_GUIDANCE.medium
+  const nextGuidance = nextDay ? WEATHER_GUIDANCE[nextDay.weather] : null
+
+  return (
+    <section className={`glass-panel weather-card ${activeDay.weather}`}>
+      <div className="panel-heading">
+        <div>
+          <p className="eyebrow">Pogoda</p>
+          <h2>{guidance.title}</h2>
+        </div>
+        <span className={`risk-chip ${activeDay.weather}`}>
+          <CloudSun size={15} aria-hidden="true" />
+          {weatherLabels[activeDay.weather]}
+        </span>
+      </div>
+
+      <div className="weather-status-row">
+        <span>{activeDay.date}</span>
+        <strong>{activeDay.base}</strong>
+      </div>
+
+      <p className="muted">{guidance.summary}</p>
+
+      <div className="weather-checks" aria-label="Co sprawdzic">
+        {guidance.checks.map((item) => (
+          <span key={item}>{item}</span>
+        ))}
+      </div>
+
+      {activeDay.weather === 'high' && (
+        <div className="weather-alert">
+          <AlertTriangle size={17} aria-hidden="true" />
+          Boat / hike day: potwierdz operatora, fale i plan B przed wyjsciem.
+        </div>
+      )}
+
+      {nextDay?.weather === 'high' && (
+        <div className="weather-tomorrow">
+          Jutro: {nextDay.title} - {nextGuidance?.title.toLowerCase() || 'plan B gotowy'}.
+        </div>
+      )}
+
+      <div className="weather-links">
+        {WEATHER_LINKS.map((link) => (
+          <a href={link.href} key={link.href} target="_blank" rel="noreferrer">
+            <ExternalLink size={16} aria-hidden="true" />
+            {link.label}
+          </a>
+        ))}
+      </div>
     </section>
   )
 }
