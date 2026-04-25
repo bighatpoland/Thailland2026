@@ -492,14 +492,94 @@ export const BOOKING_ITEMS = [
 ]
 
 export const PACKING_ITEMS = [
-  { id: 'passport', group: 'Dokumenty', text: 'Paszport + kopia offline' },
-  { id: 'insurance', group: 'Dokumenty', text: 'Polisa i numer assistance' },
-  { id: 'cash-split', group: 'Dokumenty', text: 'Gotowka rozdzielona na dwie osoby' },
-  { id: 'race-kit', group: 'Bieg', text: 'Buty, zegarek, pas, numer startowy' },
-  { id: 'electrolytes', group: 'Bieg', text: 'Elektrolity i zel/odzywka na recovery' },
-  { id: 'rain-shell', group: 'Pogoda', text: 'Lekka kurtka przeciwdeszczowa' },
-  { id: 'dry-bag', group: 'Pogoda', text: 'Dry bag na boat days' },
-  { id: 'repellent', group: 'Zdrowie', text: 'Repelent, SPF, apteczka, leki na prom' },
+  { id: 'passport', group: 'Dokumenty', text: 'Paszport + kopia offline w telefonie' },
+  { id: 'insurance', group: 'Dokumenty', text: 'Polisa, assistance i zakres sportowy' },
+  { id: 'cash-split', group: 'Dokumenty', text: 'Gotowka THB/EUR rozdzielona na dwie osoby' },
+  { id: 'cards-backup', group: 'Dokumenty', text: '2 karty platnicze + backup karta w innym miejscu' },
+  { id: 'offline-docs', group: 'Dokumenty', text: 'Offline PDF: loty, hotele, promy, bieg, ubezpieczenie' },
+  { id: 'esim', group: 'Dokumenty', text: 'eSIM/SIM + screenshot instrukcji aktywacji' },
+
+  { id: 'main-backpack', group: 'Plecak', text: 'Plecak glowny 40-45L, cel 8-11 kg' },
+  { id: 'daypack', group: 'Plecak', text: 'Lekki daypack 15-20L na loty, boat days i hiking' },
+  { id: 'packing-cubes', group: 'Plecak', text: '2-3 packing cubes: ubrania, bieg, elektronika' },
+  { id: 'dry-bag', group: 'Plecak', text: 'Dry bag 10-20L na lodzie, promy i deszcz' },
+  { id: 'rain-cover', group: 'Plecak', text: 'Rain cover albo liner/worki w plecaku' },
+  { id: 'ziplocks', group: 'Plecak', text: 'Ziplocki na paszport, gotowke, leki i mokre rzeczy' },
+
+  { id: 'quick-dry-tops', group: 'Ubrania', text: '5-6 oddychajacych koszulek/topow quick-dry' },
+  { id: 'shorts', group: 'Ubrania', text: '2 pary szortow / lekkich dolow' },
+  { id: 'long-pants', group: 'Ubrania', text: '1 lekkie dlugie spodnie na swiatynie, komary i transfery' },
+  { id: 'temple-cover', group: 'Ubrania', text: 'Sarong/chusta: swiatynie, lodz, plazowy koc, awaryjna warstwa' },
+  { id: 'underwear', group: 'Ubrania', text: '7 par bielizny quick-dry' },
+  { id: 'sports-bras', group: 'Ubrania', text: '2-3 sportowe staniki / szybkoschnaca bielizna treningowa' },
+  { id: 'socks', group: 'Ubrania', text: '3-4 pary skarpet, w tym biegowe' },
+  { id: 'swimwear', group: 'Ubrania', text: '2 stroje kapielowe, zeby jeden mogl schnac' },
+  { id: 'light-layer', group: 'Ubrania', text: 'Lekka bluza/kardigan na klimatyzacje i promy' },
+  { id: 'rain-shell', group: 'Ubrania', text: 'Lekka kurtka przeciwdeszczowa, nie ciezka peleryna' },
+
+  { id: 'running-shoes', group: 'Buty', text: 'Rozbiegane buty startowe do polmaratonu' },
+  { id: 'wet-sandals', group: 'Buty', text: 'Sandaly/klapki odporne na wode, nie skora' },
+  { id: 'optional-light-shoes', group: 'Buty', text: 'Opcjonalnie lekkie buty miejskie, jesli nie dubluja biegowych' },
+
+  { id: 'race-kit', group: 'Bieg', text: 'Stroj startowy przetestowany na treningu' },
+  { id: 'race-socks', group: 'Bieg', text: 'Skarpety startowe + jedna zapasowa para' },
+  { id: 'gps-watch', group: 'Bieg', text: 'Zegarek GPS + ladowarka' },
+  { id: 'electrolytes', group: 'Bieg', text: 'Elektrolity i zele/chews trenowane przed wyjazdem' },
+  { id: 'anti-chafe', group: 'Bieg', text: 'Anti-chafe / plastry na otarcia i pecherze' },
+  { id: 'hydration-belt', group: 'Bieg', text: 'Pas/bidon/soft flask, jesli regulamin biegu pozwala' },
+  { id: 'recovery-kit', group: 'Bieg', text: 'Recovery: lekkie ubranie, klapki, elektrolity, mala przekaska' },
+
+  { id: 'hat-sunglasses', group: 'Boat + hiking', text: 'Kapelusz/czapka, okulary UV, SPF pod reka' },
+  { id: 'micro-towel', group: 'Boat + hiking', text: 'Recznik szybkoschnacy albo pareo zamiast grubego recznika' },
+  { id: 'waterproof-phone', group: 'Boat + hiking', text: 'Wodoodporne etui na telefon na speedboat i deszcz' },
+  { id: 'headlamp', group: 'Boat + hiking', text: 'Mala czolowka/latarka na transfery i awarie pradu' },
+  { id: 'water-bottle', group: 'Boat + hiking', text: 'Lekka butelka wielorazowa' },
+
+  { id: 'repellent', group: 'Zdrowie', text: 'Repelent, najlepiej kupic/uzupelnic lokalnie' },
+  { id: 'spf', group: 'Zdrowie', text: 'SPF 50 na start + plan dokupienia w Boots/Watsons/7-Eleven' },
+  { id: 'stomach-kit', group: 'Zdrowie', text: 'Mini apteczka: zoladek, biegunka, elektrolity, przeciwbolowe' },
+  { id: 'motion-sickness', group: 'Zdrowie', text: 'Leki/opaski na chorobe morska przed boat days' },
+  { id: 'personal-meds', group: 'Zdrowie', text: 'Leki stale w oryginalnym opakowaniu + zapas' },
+  { id: 'hand-sanitizer', group: 'Zdrowie', text: 'Mini sanitizer i chusteczki, reszte dokupic lokalnie' },
+
+  { id: 'chargers', group: 'Elektronika', text: 'Ladowarki USB-C/Lightning + kable zapasowe' },
+  { id: 'powerbank', group: 'Elektronika', text: 'Powerbank do telefonu i dnia transferowego' },
+  { id: 'adapter', group: 'Elektronika', text: 'Adapter podrozny / mala listwa USB' },
+  { id: 'airtags', group: 'Elektronika', text: 'AirTag/lokalizator do glownego plecaka, jesli macie' },
+]
+
+export const PACKING_STRATEGY = {
+  title: 'Plecak na 23 noce w Tajlandii',
+  target: '40-45L + daypack 15-20L',
+  weight: 'cel 8-11 kg lacznie',
+  laundry: 'pakujemy na 6-7 dni i pierzemy co 4-5 dni',
+  principles: [
+    'quick-dry zamiast bawelny i jeansu',
+    'boat days: dry bag + ziplocki',
+    'biegowe rzeczy jada w podrecznym/daypacku',
+    'kosmetyki i repelent latwo dokupic w Tajlandii',
+  ],
+  researchNotes: [
+    'Czerwiec to wilgoc, cieplo i ulewy, wiec najwazniejsze sa lekkie materialy, ochrona elektroniki i szybkie suszenie.',
+    'Przy wielu transferach i promach plecak wygrywa z walizka, ale trzeba ograniczyc wage i liczbe butow.',
+    'Na polmaraton nie testujemy nowych rzeczy: buty, skarpety, zele i pas powinny byc sprawdzone przed wyjazdem.',
+  ],
+}
+
+export const PACKING_SKIP_ITEMS = [
+  'jeansy i ciezkie bawelniane rzeczy',
+  'duze kosmetyki z domu',
+  'ciezka walizka',
+  'drogie bizuteria i rzeczy, ktorych szkoda zgubic',
+  'skorzane/suede buty na deszcz',
+  'zapas ubran na 23 dni bez prania',
+]
+
+export const PACKING_SOURCE_LINKS = [
+  { label: 'Backpack Thailand packing guide', href: 'https://backpackthailand.com/guides/thailand-packing-list' },
+  { label: 'Khao San Road backpack list', href: 'https://www.khaosanroad.com/articles/backpacker-packing-list-for-thailand-2026-04-01' },
+  { label: 'REI running gear checklist', href: 'https://www.rei.com/learn/expert-advice/marathon-running-gear-checklist.html' },
+  { label: 'SELF destination race packing', href: 'https://www.self.com/story/destination-race-what-to-pack' },
 ]
 
 export const EMERGENCY_CONTACTS = [

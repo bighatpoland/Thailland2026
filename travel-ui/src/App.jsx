@@ -36,6 +36,9 @@ import {
   LINK_GROUPS,
   LOTUS_WORKSHOP,
   PACKING_ITEMS,
+  PACKING_SKIP_ITEMS,
+  PACKING_SOURCE_LINKS,
+  PACKING_STRATEGY,
   TRANSFER_TIMES,
   TRANSPORT_BETWEEN_BASES,
   TRIP_END_ISO,
@@ -689,28 +692,92 @@ function VaultView({
         ))}
       </section>
 
-      <section className="glass-panel">
-        <div className="panel-heading">
-          <h2>Packing + health</h2>
-          <Luggage size={20} aria-hidden="true" />
+      <PackingBackpackCard
+        checkedPacking={checkedPacking}
+        packingGroups={packingGroups}
+        packingState={packingState}
+        setPackingState={setPackingState}
+      />
+    </section>
+  )
+}
+
+function PackingBackpackCard({ checkedPacking, packingGroups, packingState, setPackingState }) {
+  return (
+    <section className="glass-panel packing-card">
+      <div className="panel-heading">
+        <div>
+          <p className="eyebrow">Backpack-first</p>
+          <h2>Lista do spakowania</h2>
         </div>
-        {Object.entries(packingGroups).map(([group, items]) => (
-          <div className="packing-group" key={group}>
-            <h3>{group}</h3>
-            {items.map((item) => (
-              <label className="check-line" key={item.id}>
-                <input
-                  type="checkbox"
-                  checked={Boolean(packingState[item.id])}
-                  onChange={() => setPackingState((previous) => ({ ...previous, [item.id]: !previous[item.id] }))}
-                />
-                <span>{packingState[item.id] ? <CheckCircle2 size={18} /> : <Circle size={18} />}</span>
-                {item.text}
-              </label>
-            ))}
-          </div>
+        <Luggage size={20} aria-hidden="true" />
+      </div>
+
+      <div className="packing-hero">
+        <div>
+          <h3>{PACKING_STRATEGY.title}</h3>
+          <p>
+            {PACKING_STRATEGY.target} - {PACKING_STRATEGY.weight}
+          </p>
+          <span>{PACKING_STRATEGY.laundry}</span>
+        </div>
+        <div className="packing-progress">
+          <strong>
+            {checkedPacking}/{PACKING_ITEMS.length}
+          </strong>
+          <span>spakowane</span>
+        </div>
+      </div>
+
+      <div className="packing-principles">
+        {PACKING_STRATEGY.principles.map((principle) => (
+          <span key={principle}>{principle}</span>
         ))}
-      </section>
+      </div>
+
+      <details className="packing-research" open>
+        <summary>Dlaczego tak pakujemy</summary>
+        <ul className="clean-list">
+          {PACKING_STRATEGY.researchNotes.map((note) => (
+            <li key={note}>{note}</li>
+          ))}
+        </ul>
+      </details>
+
+      {Object.entries(packingGroups).map(([group, items]) => (
+        <div className="packing-group" key={group}>
+          <h3>{group}</h3>
+          {items.map((item) => (
+            <label className="check-line" key={item.id}>
+              <input
+                type="checkbox"
+                checked={Boolean(packingState[item.id])}
+                onChange={() => setPackingState((previous) => ({ ...previous, [item.id]: !previous[item.id] }))}
+              />
+              <span>{packingState[item.id] ? <CheckCircle2 size={18} /> : <Circle size={18} />}</span>
+              {item.text}
+            </label>
+          ))}
+        </div>
+      ))}
+
+      <div className="packing-skip">
+        <h3>Nie pakujemy</h3>
+        <div>
+          {PACKING_SKIP_ITEMS.map((item) => (
+            <span key={item}>{item}</span>
+          ))}
+        </div>
+      </div>
+
+      <div className="source-list">
+        {PACKING_SOURCE_LINKS.map((source) => (
+          <a className="source-link" href={source.href} key={source.href} target="_blank" rel="noreferrer">
+            <ExternalLink size={16} aria-hidden="true" />
+            {source.label}
+          </a>
+        ))}
+      </div>
     </section>
   )
 }
