@@ -6,7 +6,6 @@ import {
   Circle,
   ClipboardCheck,
   CloudSun,
-  Download,
   ExternalLink,
   Heart,
   Home,
@@ -220,9 +219,9 @@ function App() {
             pod reka, z zapisem lokalnym na telefonie.
           </p>
         </div>
-        <button className="icon-action primary" type="button" onClick={() => downloadIcs(CALENDAR_EVENTS)}>
-          <Download size={18} aria-hidden="true" />
-          ICS
+        <button className="icon-action primary calendar-action" type="button" onClick={() => downloadIcs(CALENDAR_EVENTS)}>
+          <CalendarDays size={18} aria-hidden="true" />
+          Kalendarz
         </button>
       </section>
 
