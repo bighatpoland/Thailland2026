@@ -1,5 +1,5 @@
 {
-  "installCommand": "cd travel-ui && npm ci",
+  "installCommand": "cd travel-ui && npm install",
   "buildCommand": "cd travel-ui && npm run build",
   "outputDirectory": "travel-ui/dist",
   "rewrites": [

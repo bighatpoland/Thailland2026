@@ -12,7 +12,7 @@ Repo jest gotowe do importu w Vercel:
 
 Konfiguracja deploymentu:
 
-- install command: `cd travel-ui && npm ci`
+- install command: `cd travel-ui && npm install`
 - build command: `cd travel-ui && npm run build`
 - output directory: `travel-ui/dist`
 
