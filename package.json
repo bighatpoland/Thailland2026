@@ -1,0 +1,15 @@
+{
+  "name": "thailand-2026",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "npm --prefix travel-ui run dev",
+    "build": "npm --prefix travel-ui run build",
+    "preview": "npm --prefix travel-ui run preview",
+    "lint": "npm --prefix travel-ui run lint"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
