@@ -7,6 +7,8 @@ export const DESTINATIONS = [
     dates: '5-7.06 i 26-28.06',
     nights: '4 noce lacznie',
     photo: '/photos/bangkok.jpg',
+    photoCredit: 'V. Argenberg / Wikimedia Commons',
+    photoSource: 'https://commons.wikimedia.org/wiki/File:Bangkok_skyline,_Bangkok,_Thailand.jpg',
     focus: 'Urodziny: White Lotus + LEGO + SkyWalk + kolacja',
   },
   {
@@ -14,6 +16,8 @@ export const DESTINATIONS = [
     dates: '7-10.06',
     nights: '3 noce',
     photo: '/photos/krabi.jpg',
+    photoCredit: 'V. Argenberg / Wikimedia Commons',
+    photoSource: 'https://commons.wikimedia.org/wiki/File:Railay,_Krabi,_Thailand.jpg',
     focus: 'Railay Beach i James Bond Island',
   },
   {
@@ -21,6 +25,8 @@ export const DESTINATIONS = [
     dates: '10-15.06',
     nights: '5 nocy',
     photo: '/photos/phuket.jpg',
+    photoCredit: 'Mussi Katz / Wikimedia Commons',
+    photoSource: 'https://commons.wikimedia.org/wiki/File:Phuket_old_town_(52549766215).jpg',
     focus: 'Old Town, Aquarium, Koh Racha Yai, polmaraton 14.06',
   },
   {
@@ -28,6 +34,8 @@ export const DESTINATIONS = [
     dates: '15-16.06',
     nights: '1 noc',
     photo: '/photos/khaosok.jpg',
+    photoCredit: 'V. Argenberg / Wikimedia Commons',
+    photoSource: 'https://commons.wikimedia.org/wiki/File:Khao_Sok,_Cheow_Lan_Lake,_Rock_formations,_Thailand.jpg',
     focus: 'Boat trip + nature walk',
   },
   {
@@ -35,6 +43,8 @@ export const DESTINATIONS = [
     dates: '16-20.06',
     nights: '4 noce',
     photo: '/photos/samui.jpg',
+    photoCredit: 'V. Argenberg / Wikimedia Commons',
+    photoSource: 'https://commons.wikimedia.org/wiki/File:Koh_Samui,_Beach,_Thailand.jpg',
     focus: 'Rocznica 18.06: spokojny dzien + kolacja',
   },
   {
@@ -42,6 +52,8 @@ export const DESTINATIONS = [
     dates: '20-26.06',
     nights: '6 nocy',
     photo: '/photos/phangan.jpg',
+    photoCredit: 'David Wilmot / Wikimedia Commons',
+    photoSource: 'https://commons.wikimedia.org/wiki/File:Beach_on_Koh_Phangan.jpg',
     focus: 'Ang Thong, Than Sadet, Phaeng, dzien buforowy',
   },
 ]

@@ -434,6 +434,16 @@
   font-weight: 800;
 }
 
+.photo-credit {
+  color: rgba(24, 45, 43, 0.62);
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  margin-top: 2px;
+  text-decoration: none;
+}
+
 .vault-group,
 .link-group {
   border-top: 1px solid rgba(255, 255, 255, 0.5);

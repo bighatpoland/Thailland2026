@@ -521,12 +521,15 @@ function RouteView() {
         <div className="destination-strip">
           {DESTINATIONS.map((destination) => (
             <article className="destination-card" key={destination.name}>
-              <img src={destination.photo} alt="" loading="lazy" />
+              <img src={destination.photo} alt={`Widok z ${destination.name}`} loading="lazy" />
               <div>
                 <h3>{destination.name}</h3>
                 <p>{destination.dates}</p>
                 <span>{destination.nights}</span>
                 <small>{destination.focus}</small>
+                <a className="photo-credit" href={destination.photoSource} target="_blank" rel="noreferrer">
+                  foto: {destination.photoCredit}
+                </a>
               </div>
             </article>
           ))}
